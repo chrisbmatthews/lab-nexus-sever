@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  nexus:
+    image: sonatype/nexus3
+    expose:
+      - 8081
+      - 8082
+      - 8083
+    ports:
+      - "8082:8082"
+      - "8083:8083"
+      - "8081:8081"
+    volumes:
+      - ./volume:/nexus-data
+    restart: always
