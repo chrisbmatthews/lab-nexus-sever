@@ -42,3 +42,65 @@ Once it's running, visit:
 
 http://localhost:8081
 
+### First login
+Click 'Sign In'.
+
+You will sign in using the `admin` username.
+
+You can find the initial admin password by running:
+
+```
+cat volume/admin.password
+```
+
+On first login, you will be prompted to change the admin password.
+
+If you like, you can enable anonymous access.
+
+## Docker Repo
+### Docker Hub Proxy
+To set up a proxy to Docker Hub:
+
+**For the blob storage**
+- Click the config (gear) icon.
+- Navigate to 'Blob Stores'.
+- Create a new Blob Store of type File.  
+    - You can name it whatever you like, but a good choice is `docker-hub`.
+- Click 'Create Blob Store'.
+
+**For the Security Realm**
+- Click Security > Realms
+- Add the 'Docker Bearer Token Realm'
+- Click 'Save'
+
+**For the repo itself**
+- Click 'Repositories'
+- Click 'Create Repository' and select 'docker (proxy)'
+- Give it some name (`docker-hub-proxy`)
+- Check 'HTTP' and give it a valid port (`8082`)
+- Check 'Allow anonymous docler pull'
+- Under Proxy > Remote Storgae, enter this url: `https://registry-1.docker.io`
+- Under Docker Index, select 'Use Docker Hub'
+- Under Storage > Blob Store, select the block store you created earlier (`docker-hub`)
+- Click 'Create Repository'
+
+#### Docker configuration
+For Docker Desktop (Windows or macOS), open your Docker Preferences, and select 'Docker Engine'.
+
+Add this section:
+```
+  "insecure-registries": [
+    "localhost:8082"
+  ],
+```
+
+Apply & Restart
+
+#### Pulling Through the Proxy
+You can now pull images via your repository.  If the image you want is not in your local repo, it'll be pulled from docker hub and cached into your repo for the default amoun tof time (24 hours) before being re-checked.
+
+An example pull:
+
+```
+docker pull localhost:8082/ubuntu
+```
