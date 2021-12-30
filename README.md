@@ -78,10 +78,10 @@ To set up a proxy to Docker Hub:
 - Click 'Create Repository' and select 'docker (proxy)'
 - Give it some name (`docker-hub-proxy`)
 - Check 'HTTP' and give it a valid port (`8082`)
-- Check 'Allow anonymous docler pull'
-- Under Proxy > Remote Storgae, enter this url: `https://registry-1.docker.io`
+- Check 'Allow anonymous docker pull'
+- Under Proxy > Remote Storage, enter this url: `https://registry-1.docker.io`
 - Under Docker Index, select 'Use Docker Hub'
-- Under Storage > Blob Store, select the block store you created earlier (`docker-hub`)
+- Under Storage > Blob Store, select the blob store you created earlier (`docker-hub`)
 - Click 'Create Repository'
 
 #### Docker configuration
@@ -97,10 +97,64 @@ Add this section:
 Apply & Restart
 
 #### Pulling Through the Proxy
-You can now pull images via your repository.  If the image you want is not in your local repo, it'll be pulled from docker hub and cached into your repo for the default amoun tof time (24 hours) before being re-checked.
+You can now pull images via your repository.  If the image you want is not in your local repo, it'll be pulled from docker hub and cached into your repo for the default amount of time (24 hours) before being re-checked.
 
 An example pull:
 
 ```
 docker pull localhost:8082/ubuntu
+```
+
+### Private Docker Repository
+**For the blob storage**
+- Click the config (gear) icon.
+- Navigate to 'Blob Stores'.
+- Create a new Blob Store of type File.  
+    - You can name it whatever you like, but a good choice is `docker-private`.
+- Click 'Create Blob Store'.
+
+**For the repo itself**
+- Click 'Repositories'
+- Click 'Create Repository' and select 'docker (hosted)'
+- Give it some name (`docker-private`)
+- Check 'HTTP' and give it a valid port (`8083`)
+- Under Docker Index, select 'Use Docker Hub'
+- Under Storage > Blob Store, select the blob store you created earlier (`docker-private`)
+- Click 'Create Repository'
+
+**Docker Config**
+
+Make sure you add the new url and port to the `insecure-registries` section of the docker config.
+
+Eg:
+
+```
+  "insecure-registries": [
+    "localhost:8082",
+    "localhost:8083"
+  ],
+```
+
+#### Docker Login
+To connect to the repository, you will need to login using the docker cli:
+
+```
+docker login localhost:8083
+```
+
+You can then provide user credentials (eg. - the admin user will work).
+
+#### Tagging private images
+When you build a docker impage you'd like to push to the private registry, be sure to prefix the image name with the registry url.
+
+Example:
+
+```
+docker build -t localhost:8083/myimage:latest .
+```
+
+Once it has been built, you can push it to the registry:
+
+```
+docker push localhost:8083/myimage:latest
 ```
